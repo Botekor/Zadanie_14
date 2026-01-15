@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Formularz rejestracyjny</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        section {
+            float: left;
+            padding: 10px;
+        }
+
+        .lab {
+            width: 250px;
+        }
+
+        .inPut input {
+            display: block;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        label.error {
+            color: red;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        input.error {
+            border: 2px solid red;
+        }
+
+        input.valid {
+            border: 2px solid green;
+        }
+    </style>
+</head>
+<body>
+
+<main>
+    <form id="formu">
+
+        <section class="lab">
+            <label>Nazwa użytkownika</label><br>
+            <label>Imię</label><br>
+            <label>E-mail</label><br>
+            <label>Hasło</label><br>
+            <label>Powtórz hasło</label><br>
+            <label>Wiek</label>
+        </section>
+
+        <section class="inPut">
+            <input type="text" name="login" id="login">
+            <input type="text" name="im" id="im">
+            <input type="email" name="mail" id="mail">
+            <input type="password" name="has1" id="has1">
+            <input type="password" name="has2" id="has2">
+            <input type="text" name="wiek" id="wiek">
+        </section>
+
+        <div style="clear: both"></div><br>
+        <input type="submit" value="Zarejestruj się">
+
+    </form>
+</main>
+
+<script>
+$(document).ready(function () {
+
+    const existingLogins = ["admin", "test", "janek", "user123"];
+
+    $.validator.addMethod("loginAvailable", function(value, element) {
+        let isValid = false;
+
+        $.ajax({
+            url: "fake-api.json",
+            type: "GET",
+            dataType: "json",
+            async: false,
+            success: function () {
+                isValid = !existingLogins.includes(value.toLowerCase());
+            }
+        });
+
+        return isValid;
+    }, "Taki login już istnieje");
+
+    $("#formu").validate({
+        rules: {
+            login: {
+                required: true,
+                minlength: 4,
+                loginAvailable: true
+            },
+            im: {
+                required: true,
+                minlength: 2
+            },
+            mail: {
+                required: true,
+                email: true
+            },
+            has1: {
+                required: true,
+                minlength: 6
+            },
+            has2: {
+                required: true,
+                equalTo: "#has1"
+            },
+            wiek: {
+                required: true,
+                digits: true,
+                minlength: 18
+            }
+        },
+
+        messages: {
+            login: {
+                required: "Podaj nazwę użytkownika",
+                minlength: "Minimum 4 znaki",
+                loginAvailable: "Ten login jest już zajęty"
+            },
+            im: {
+                required: "Podaj imię",
+                minlength: "Minimum 2 znaki"
+            },
+            mail: {
+                required: "Podaj adres e-mail",
+                email: "Niepoprawny format e-mail"
+            },
+            has1: {
+                required: "Podaj hasło",
+                minlength: "Hasło musi mieć min. 6 znaków"
+            },
+            has2: {
+                required: "Powtórz hasło",
+                equalTo: "Hasła muszą być identyczne"
+            },
+            wiek: {
+                required: "Podaj wiek",
+                digits: "Tylko cyfry",
+                minlength: "Musisz mieć co najmniej 18 lat"
+            }
+        }
+    });
+
+});
+</script>
+</body>
+</html>
